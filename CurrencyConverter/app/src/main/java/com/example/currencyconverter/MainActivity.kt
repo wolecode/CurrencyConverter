@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     lateinit var list: List<String>
     lateinit var viewModel: ConverterViewModel
+    var target:String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,15 +92,37 @@ class MainActivity : AppCompatActivity() {
 
         if (firstValue == "." || secondValue == ".") {
              Toast.makeText(this, "Wrong Input", Toast.LENGTH_LONG).show()
-         } 
+         } else if (firstValue.isEmpty() && secondValue.isEmpty()) {
+            Toast.makeText(this, "Enter a value", Toast.LENGTH_LONG).show()
+         } else if (firstValue.isNotEmpty() && secondValue.isEmpty()) {
+             viewModel.convertCurrency(firstValue.toFloat(),
+                 binding.firstCurrencySymbol.text.toString(),binding.secondCurrencySymbol.text.toString())
+            target = "secondValue"
+         } else if (firstValue.isEmpty() && secondValue.isNotEmpty()) {
+             viewModel.convertCurrency(secondValue.toFloat(),
+                 binding.secondCurrencySymbol.text.toString(), binding.firstCurrencySymbol.text.toString())
+            target = "firstValue"
+         } else {
+            viewModel.convertCurrency(firstValue.toFloat(),
+                binding.firstCurrencySymbol.text.toString(),binding.secondCurrencySymbol.text.toString())
+            target = "secondValue"
+         }
 
-        viewModel.convertCurrency(56.0f,"NGN","EUR",)
     }
     private fun observeConversionResult() {
 
         viewModel.conversion.observe(this) {
             when(it) {
-                is Results.Success -> binding.conversionProgress.visibility = View.INVISIBLE
+                is Results.Success -> {
+                    binding.conversionProgress.visibility = View.INVISIBLE
+                    if (target == "firstValue") {
+                        binding.firstCurrencyEditText.text?.clear()
+                        binding.displayOne.text = it.data.toString()
+                    } else {
+                        binding.secondCurrencyEditText.text?.clear()
+                        binding.displayTwo.text = it.data.toString()
+                    }
+                }
                 is Error -> {
                     binding.conversionProgress.visibility = View.INVISIBLE
                     Toast.makeText(this, it.message?: "Error", Toast.LENGTH_LONG).show()

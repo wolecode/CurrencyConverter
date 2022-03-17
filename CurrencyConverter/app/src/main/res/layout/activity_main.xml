@@ -121,7 +121,25 @@
         app:layout_constraintTop_toTopOf="@id/secondCurrencyInput"
         app:layout_constraintEnd_toEndOf="@id/secondCurrencyInput"
         app:layout_constraintBottom_toBottomOf="@id/secondCurrencyInput"/>
+<TextView
+    android:id="@+id/displayOne"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:textStyle="bold"
+    app:layout_constraintTop_toTopOf="@id/firstCurrencyInput"
+    app:layout_constraintBottom_toBottomOf="@id/firstCurrencyInput"
+    app:layout_constraintStart_toStartOf="@id/firstCurrencyInput"/>
 
+    <TextView
+        android:id="@+id/displayTwo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="@id/secondCurrencyInput"
+        app:layout_constraintBottom_toBottomOf="@id/secondCurrencyInput"
+        app:layout_constraintStart_toStartOf="@id/secondCurrencyInput"/>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/spinnerContainer"
         android:layout_width="match_parent"
