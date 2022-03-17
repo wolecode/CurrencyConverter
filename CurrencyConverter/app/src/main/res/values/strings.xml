@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CurrencyConverter</string>
+    <string name="sign_up">Sign up</string>
+    <string name="currency1">Currency</string>
+    <string name="currency2">Calculator<font color="#38850F">.</font></string>
+    <string name="convert_button">Convert</string>
+</resources>
