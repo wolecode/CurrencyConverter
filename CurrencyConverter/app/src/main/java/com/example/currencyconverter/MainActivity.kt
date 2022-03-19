@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         binding.convertButton.setOnClickListener {
             convert()
         }
+
         binding.firstCurrencyEditText.setOnFocusChangeListener { view, b ->
             binding.displayOne.visibility = View.INVISIBLE
         }
@@ -126,12 +127,15 @@ class MainActivity : AppCompatActivity() {
                     binding.conversionProgress.visibility = View.INVISIBLE
                     if (target == "firstValue") {
                         binding.firstCurrencyEditText.text?.clear()
+                        binding.secondCurrencyEditText.clearFocus()
                         binding.displayOne.apply{
                             text = it.data.toString()
                             visibility = View.VISIBLE
                         }
+                        binding.firstCurrencyEditText.focusable = View.FOCUSABLE
                     } else {
                         binding.secondCurrencyEditText.text?.clear()
+                        binding.secondCurrencyEditText.clearFocus()
                         binding.displayTwo.apply{
                             text = it.data.toString()
                             visibility = View.VISIBLE
