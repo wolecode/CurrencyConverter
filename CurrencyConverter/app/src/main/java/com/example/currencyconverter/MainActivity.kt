@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
                     binding.conversionProgress.visibility = View.INVISIBLE
                     if (target == "firstValue") {
                         binding.firstCurrencyEditText.text?.clear()
-                        binding.secondCurrencyEditText.clearFocus()
+                        binding.firstCurrencyEditText.clearFocus()
                         binding.displayOne.apply{
                             text = it.data.toString()
                             visibility = View.VISIBLE
