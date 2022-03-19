@@ -3,6 +3,7 @@ package com.example.currencyconverter
 import android.opengl.Visibility
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -42,6 +43,13 @@ class MainActivity : AppCompatActivity() {
         binding.convertButton.setOnClickListener {
             convert()
         }
+        binding.firstCurrencyEditText.setOnFocusChangeListener { view, b ->
+            binding.displayOne.visibility = View.INVISIBLE
+        }
+
+        binding.secondCurrencyEditText.setOnFocusChangeListener { view, b ->
+            binding.displayTwo.visibility = View.INVISIBLE
+        }
         val firstSpinner = binding.spinnerLayout.firstSpinner
         val secondSpinner = binding.spinnerLayout.secondSpinner
 
@@ -55,7 +63,7 @@ class MainActivity : AppCompatActivity() {
         firstSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 val item = p0?.getItemAtPosition(p2) as String
-                viewModel.updateFirstCurrency(item.substring(4))
+                viewModel.updateFirstCurrency(item.substring(item.length - 3))
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -66,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         secondSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                 val item = p0?.getItemAtPosition(p2) as String
-                viewModel.updateSecondCurrency(item.substring(4))
+                viewModel.updateSecondCurrency(item.substring(item.length - 3))
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -78,7 +86,6 @@ class MainActivity : AppCompatActivity() {
     private fun setCurrencySymbol() {
         viewModel.firstCurrency.observe(this) {
             binding.firstCurrencySymbol.text = it
-            println("Observe $it")
         }
         viewModel.secondCurrency.observe(this) {
             binding.secondCurrencySymbol.text = it
@@ -86,14 +93,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun convert() {
-        observeConversionResult()
+        binding.conversionProgress.visibility = View.VISIBLE
         val firstValue = binding.firstCurrencyEditText.text.toString()
         val secondValue = binding.secondCurrencyEditText.text.toString()
 
         if (firstValue == "." || secondValue == ".") {
              Toast.makeText(this, "Wrong Input", Toast.LENGTH_LONG).show()
+            binding.conversionProgress.visibility = View.INVISIBLE
          } else if (firstValue.isEmpty() && secondValue.isEmpty()) {
             Toast.makeText(this, "Enter a value", Toast.LENGTH_LONG).show()
+            binding.conversionProgress.visibility = View.INVISIBLE
          } else if (firstValue.isNotEmpty() && secondValue.isEmpty()) {
              viewModel.convertCurrency(firstValue.toFloat(),
                  binding.firstCurrencySymbol.text.toString(),binding.secondCurrencySymbol.text.toString())
@@ -107,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                 binding.firstCurrencySymbol.text.toString(),binding.secondCurrencySymbol.text.toString())
             target = "secondValue"
          }
-
+        observeConversionResult()
     }
     private fun observeConversionResult() {
 
@@ -117,10 +126,16 @@ class MainActivity : AppCompatActivity() {
                     binding.conversionProgress.visibility = View.INVISIBLE
                     if (target == "firstValue") {
                         binding.firstCurrencyEditText.text?.clear()
-                        binding.displayOne.text = it.data.toString()
+                        binding.displayOne.apply{
+                            text = it.data.toString()
+                            visibility = View.VISIBLE
+                        }
                     } else {
                         binding.secondCurrencyEditText.text?.clear()
-                        binding.displayTwo.text = it.data.toString()
+                        binding.displayTwo.apply{
+                            text = it.data.toString()
+                            visibility = View.VISIBLE
+                        }
                     }
                 }
                 is Error -> {
