@@ -1,5 +1,6 @@
 package com.example.currencyconverter.network
 
+import com.example.currencyconverter.data.ConverterResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path

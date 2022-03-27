@@ -1,5 +1,7 @@
 package com.example.currencyconverter
 
+import com.example.currencyconverter.data.entity.CurrencyFlagEntity
+
 
 val key = "ffeb91019a6311895383454f"
 val currencyList = listOf("USD","AED","AFN","ALL","AMD","ANG","AOA","ARS",
@@ -14,13 +16,13 @@ val currencyList = listOf("USD","AED","AFN","ALL","AMD","ANG","AOA","ARS",
     "SDG","SEK","SGD","SHP","SLL","SOS","SRD","SSP","STN","SYP", "SZL","THB","TJS","TMT","TND",
     "TOP","TRY","TTD","TVD","TWD","TZS","UAH","UGX","UYU","UZS","VES","VND","VUV","WST","XAF",
     "XCD","XDR","XOF","XPF","YER","ZAR","ZMW","ZWL")
-var newList = mutableListOf<String>()
+var newList = mutableListOf<CurrencyFlagEntity>()
 
-fun getCurrencyFlag() : List<String> {
+fun getCurrencyFlag() : List<CurrencyFlagEntity> {
     for(list in currencyList) {
         val first = Character.codePointAt(list, 0) - 0x41 + 0x1F1E6
         val second = Character.codePointAt(list, 1) - 0x41 + 0x1F1E6
-        val finalString = String(Character.toChars(first)) + String(Character.toChars(second)) + " $list"
+        val finalString = CurrencyFlagEntity( list, String(Character.toChars(first)) + String(Character.toChars(second)))
         newList.add(finalString)
     }
     return newList

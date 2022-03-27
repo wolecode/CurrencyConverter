@@ -1,29 +1,26 @@
-package com.example.currencyconverter
+package com.example.currencyconverter.ui
 
-import android.opengl.Visibility
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.KeyEvent
+import android.preference.PreferenceManager.getDefaultSharedPreferences
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SpinnerAdapter
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
 import com.example.currencyconverter.databinding.ActivityMainBinding
+import com.example.currencyconverter.getCurrencyFlag
 import com.example.currencyconverter.network.Results
-import com.example.currencyconverter.network.RetrofitObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.lang.Error
-import kotlin.coroutines.coroutineContext
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     lateinit var list: List<String>
     lateinit var viewModel: ConverterViewModel
+    lateinit var sharedPreference: SharedPreferences
+    lateinit var spinnerAdapter: ArrayAdapter<String>
     var target:String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,14 +28,26 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        list = getCurrencyFlag()
+
         viewModel = ViewModelProvider(this,
             ViewModelProvider.AndroidViewModelFactory(application))[ConverterViewModel::class.java]
+        spinnerAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item).apply {
+            setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
+        }
 
+        setupSpinnerData()
         setUpView()
         setCurrencySymbol()
 
     }
+
+    private fun setupSpinnerData() {
+        viewModel.currencySymbol.observe(this) {
+            spinnerAdapter.addAll(it.map { a ->  a.flagSymbol + " " + a.currency })
+            spinnerAdapter.notifyDataSetChanged()
+        }
+    }
+
     private fun setUpView() {
         binding.convertButton.setOnClickListener {
             convert()
@@ -51,15 +60,8 @@ class MainActivity : AppCompatActivity() {
         binding.secondCurrencyEditText.setOnFocusChangeListener { view, b ->
             binding.displayTwo.visibility = View.INVISIBLE
         }
-        val firstSpinner = binding.spinnerLayout.firstSpinner
-        val secondSpinner = binding.spinnerLayout.secondSpinner
-
-        ArrayAdapter<String>(this, android.R.layout.simple_spinner_item,
-            list).apply {
-            setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
-            firstSpinner.adapter = this
-            secondSpinner.adapter = this
-        }
+        val firstSpinner = binding.spinnerLayout.firstSpinner.apply { adapter = spinnerAdapter }
+        val secondSpinner = binding.spinnerLayout.secondSpinner.apply { adapter = spinnerAdapter }
 
         firstSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
@@ -119,6 +121,7 @@ class MainActivity : AppCompatActivity() {
          }
         observeConversionResult()
     }
+
     private fun observeConversionResult() {
 
         viewModel.conversion.observe(this) {

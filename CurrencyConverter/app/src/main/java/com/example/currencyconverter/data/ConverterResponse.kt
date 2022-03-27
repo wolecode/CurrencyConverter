@@ -1,4 +1,4 @@
-package com.example.currencyconverter.network
+package com.example.currencyconverter.data
 
 data class ConverterResponse( val result: String,
                               val documentation: String,
