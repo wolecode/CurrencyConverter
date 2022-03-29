@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.currencyconverter.data.entity.ConversionResultEntity
 import com.example.currencyconverter.data.entity.CurrencyFlagEntity
+import kotlinx.coroutines.flow.Flow
 
 
 @Dao
@@ -17,7 +18,7 @@ interface CurrencyDao {
     suspend fun insertCurrencySymbol(currencySymbol: List<CurrencyFlagEntity>)
 
     @Query("SELECT * FROM currencyFlag")
-    fun getListOfCurrencySymbol(): LiveData<List<CurrencyFlagEntity>>
+    fun getListOfCurrencySymbol(): Flow<List<CurrencyFlagEntity>>
 
     @Query("SELECT * FROM currencyFlag")
     suspend fun getSomething():List<CurrencyFlagEntity>

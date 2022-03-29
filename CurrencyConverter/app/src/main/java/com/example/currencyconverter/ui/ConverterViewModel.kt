@@ -11,9 +11,14 @@ import com.example.currencyconverter.data.entity.CurrencyFlagEntity
 import com.example.currencyconverter.getCurrencyFlag
 import com.example.currencyconverter.network.Results
 import com.example.currencyconverter.network.RetrofitObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
+
     private val _firstCurrency = MutableLiveData<String>()
     private val _secondCurrency = MutableLiveData<String>()
     private val _conversion = MutableLiveData<Results<Float>>()
@@ -38,16 +43,24 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
         if (!pref.getBoolean("isLoaded", false)) {
             viewModelScope.launch {
                 databaseDao.insertCurrencySymbol(getCurrencyFlag())
-                currencySymbol = databaseDao.getListOfCurrencySymbol()
+                databaseDao.getListOfCurrencySymbol().collect {
+                    _currencySymbol.value = it
+                }
                 pref.edit().putBoolean("isLoaded", true).apply()
             }
         } else {
             viewModelScope.launch {
-                currencySymbol = databaseDao.getListOfCurrencySymbol().distinctUntilChanged()
-
+                val live = databaseDao.getListOfCurrencySymbol()
+                viewModelScope.launch {
+                    databaseDao.insertCurrencySymbol(getCurrencyFlag())
+                    databaseDao.getListOfCurrencySymbol().collect {
+                        _currencySymbol.value = it
+                    }
+                }
             }
         }
     }
+
     fun updateFirstCurrency(currency: String) {
         _firstCurrency.value = currency
     }
