@@ -7,6 +7,7 @@ import android.icu.util.Currency
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.currencyconverter.data.CurrencyDatabase
+import com.example.currencyconverter.data.entity.ConversionResultEntity
 import com.example.currencyconverter.data.entity.CurrencyFlagEntity
 import com.example.currencyconverter.getCurrencyFlag
 import com.example.currencyconverter.network.Results
@@ -50,7 +51,6 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
             }
         } else {
             viewModelScope.launch {
-                val live = databaseDao.getListOfCurrencySymbol()
                 viewModelScope.launch {
                     databaseDao.insertCurrencySymbol(getCurrencyFlag())
                     databaseDao.getListOfCurrencySymbol().collect {
@@ -74,9 +74,13 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
 
             val service = RetrofitObject.getService()
             val res = service.getConversion(base, target, amt)
+
             if (res.isSuccessful) {
+                val resBody = res.body()
                 _conversion.value =
-                    Results.Success(res.body()?.conversion_result!!)
+                    Results.Success(resBody?.conversion_result!!)
+                    databaseDao.insertConversionResult(ConversionResultEntity(amt, resBody.base_code,
+                    resBody.target_code,resBody.conversion_result))
             } else {
                 Results.Error(Exception(res.errorBody().toString()))
             }

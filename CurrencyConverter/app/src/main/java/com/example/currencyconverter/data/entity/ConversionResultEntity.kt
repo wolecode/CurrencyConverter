@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "conversionResult")
 data class ConversionResultEntity(
                                   @PrimaryKey
-                                  val id: Int = 0,
+                                  val id: Int,
                                   @ColumnInfo
                                   val amount: Float,
                                   @ColumnInfo
@@ -17,4 +17,7 @@ data class ConversionResultEntity(
                                   val targetCurrency: String,
                                   @ColumnInfo
                                   val result: Float) {
+
+    constructor(amount: Float, baseCurrency: String, targetCurrency: String, result: Float)
+            : this(0, amount, baseCurrency, targetCurrency, result)
 }
