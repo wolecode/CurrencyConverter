@@ -27,6 +27,6 @@ interface CurrencyDao {
     suspend fun insertConversionResult(conversionResult: ConversionResultEntity)
 
     @Query("SELECT * FROM conversionResult")
-    fun getConversionResult(): LiveData<List<ConversionResultEntity>>
+    fun getConversionResult(): Flow<List<ConversionResultEntity>>
 
 }
