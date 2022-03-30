@@ -22,19 +22,22 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
 
     private val _firstCurrency = MutableLiveData<String>()
     private val _secondCurrency = MutableLiveData<String>()
-    private val _conversion = MutableLiveData<Results<Float>>()
+    private val _conversion = MutableLiveData<Results<Float>>(Results.Loading)
     private var _currencySymbol = MutableLiveData<List<CurrencyFlagEntity>>()
+
+    private val _conversionResult = MutableLiveData<List<ConversionResultEntity>>()
 
     var firstCurrency: LiveData<String> = _firstCurrency
     var secondCurrency: LiveData<String> = _secondCurrency
     var conversion: LiveData<Results<Float>> = _conversion
     var currencySymbol: LiveData<List<CurrencyFlagEntity>> = _currencySymbol
-
+    var conversionResult: LiveData<List<ConversionResultEntity>> = _conversionResult
 
     private val databaseDao = CurrencyDatabase.getDatabase(app).getCurrencyDao()
 
     init {
         loadCurrencyData()
+        getConversionResult()
 
     }
 
@@ -85,5 +88,14 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
                 Results.Error(Exception(res.errorBody().toString()))
             }
         }
+    }
+
+    private fun getConversionResult() {
+        viewModelScope.launch {
+            databaseDao.getConversionResult().collect {
+                _conversionResult.value = it
+            }
+        }
+
     }
 }
