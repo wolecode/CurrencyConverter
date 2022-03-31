@@ -38,9 +38,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupSpinnerData()
-        setUpView()
         setCurrencySymbol()
-        //observePersistedData()
+        setUpView()
+        observePersistedData()
 
     }
 
@@ -115,25 +115,41 @@ class MainActivity : AppCompatActivity() {
             viewModel.convertCurrency(
                 firstValue.toFloat(),
                 binding.firstCurrencySymbol.text.toString(),
-                binding.secondCurrencySymbol.text.toString()
+                binding.secondCurrencySymbol.text.toString(),
+                getFirstCurrencyPosition(),
+                getSecondCurrencyPosition()
             )
             target = "secondValue"
         } else if (firstValue.isEmpty() && secondValue.isNotEmpty()) {
             viewModel.convertCurrency(
                 secondValue.toFloat(),
                 binding.secondCurrencySymbol.text.toString(),
-                binding.firstCurrencySymbol.text.toString()
+                binding.firstCurrencySymbol.text.toString(),
+                getSecondCurrencyPosition(),
+                getFirstCurrencyPosition()
             )
             target = "firstValue"
         } else {
             viewModel.convertCurrency(
                 firstValue.toFloat(),
                 binding.firstCurrencySymbol.text.toString(),
-                binding.secondCurrencySymbol.text.toString()
+                binding.secondCurrencySymbol.text.toString(),
+                getFirstCurrencyPosition(),
+                getSecondCurrencyPosition()
             )
             target = "secondValue"
         }
 
+    }
+
+    private fun getFirstCurrencyPosition(): String {
+        val spinnerItem = binding.spinnerLayout.firstSpinner.selectedItem as String
+        return spinnerAdapter.getPosition(spinnerItem).toString()
+    }
+
+    private fun getSecondCurrencyPosition(): String {
+        val spinnerItem = binding.spinnerLayout.secondSpinner.selectedItem as String
+        return spinnerAdapter.getPosition(spinnerItem).toString()
     }
 
     private fun observeConversionResult() {
@@ -168,7 +184,8 @@ class MainActivity : AppCompatActivity() {
                 with(binding) {
                     firstCurrencyEditText.setText(it[0].amount.toString())
                     secondCurrencyEditText.setText(it[0].result.toString())
-
+                    binding.spinnerLayout.firstSpinner.setSelection(it[0].baseCurrency.toInt(), true)
+                    binding.spinnerLayout.secondSpinner.setSelection(it[0].targetCurrency.toInt(), true)
                 }
             }
         }

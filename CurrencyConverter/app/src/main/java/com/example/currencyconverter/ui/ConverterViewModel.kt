@@ -54,11 +54,8 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
             }
         } else {
             viewModelScope.launch {
-                viewModelScope.launch {
-                    databaseDao.insertCurrencySymbol(getCurrencyFlag())
-                    databaseDao.getListOfCurrencySymbol().collect {
-                        _currencySymbol.value = it
-                    }
+                databaseDao.getListOfCurrencySymbol().collect {
+                    _currencySymbol.value = it
                 }
             }
         }
@@ -72,7 +69,10 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
         _secondCurrency.value = currency
     }
 
-    fun convertCurrency(amt: Float, base: String, target: String) {
+    fun convertCurrency(
+        amt: Float, base: String, target: String,
+        basePosition: String, targetPosition: String
+    ) {
         viewModelScope.launch {
 
             val service = RetrofitObject.getService()
@@ -82,8 +82,12 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
                 val resBody = res.body()
                 _conversion.value =
                     Results.Success(resBody?.conversion_result!!)
-                    databaseDao.insertConversionResult(ConversionResultEntity(amt, resBody.base_code,
-                    resBody.target_code,resBody.conversion_result))
+                databaseDao.insertConversionResult(
+                    ConversionResultEntity(
+                        amt, basePosition,
+                        targetPosition, resBody.conversion_result
+                    )
+                )
             } else {
                 Results.Error(Exception(res.errorBody().toString()))
             }
