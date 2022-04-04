@@ -44,10 +44,14 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun setupSpinnerData() {
+     private fun setupSpinnerData(first: Int? = null, second: Int? = null) {
         viewModel.currencySymbol.observe(this) {
             spinnerAdapter.addAll(it.map { a -> a.flagSymbol + " " + a.currency })
             spinnerAdapter.notifyDataSetChanged()
+            if (first != null && second != null) {
+                binding.spinnerLayout.firstSpinner.setSelection(first)
+                binding.spinnerLayout.secondSpinner.setSelection(second)
+            }
         }
     }
 
@@ -184,8 +188,9 @@ class MainActivity : AppCompatActivity() {
                 with(binding) {
                     firstCurrencyEditText.setText(it[0].amount.toString())
                     secondCurrencyEditText.setText(it[0].result.toString())
-                    binding.spinnerLayout.firstSpinner.setSelection(it[0].baseCurrency.toInt(), true)
-                    binding.spinnerLayout.secondSpinner.setSelection(it[0].targetCurrency.toInt(), true)
+                    //binding.spinnerLayout.firstSpinner.setSelection(it[0].baseCurrency.toInt(), true)
+                    //binding.spinnerLayout.secondSpinner.setSelection(it[0].targetCurrency.toInt(), true)
+                    setupSpinnerData(it[0].baseCurrency.toInt(), it[0].targetCurrency.toInt() )
                 }
             }
         }
