@@ -20,6 +20,6 @@ object RetrofitObject {
         .baseUrl(baseUrl)
         .client(clientHttp)
         .build()
-    fun getService() = retrofit.create(ApiService::class.java)
+    fun getService(): ApiService = retrofit.create(ApiService::class.java)
 
 }
