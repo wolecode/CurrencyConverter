@@ -17,11 +17,8 @@ import java.lang.Error
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    lateinit var list: List<String>
     lateinit var viewModel: ConverterViewModel
-    lateinit var sharedPreference: SharedPreferences
     lateinit var spinnerAdapter: ArrayAdapter<String>
-    var target: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,18 +34,18 @@ class MainActivity : AppCompatActivity() {
             setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
         }
 
-        setupSpinnerData()
-        setCurrencySymbol()
+        //setupSpinnerData()
         setUpView()
         observePersistedData()
+        setCurrencySymbol()
 
     }
 
-     private fun setupSpinnerData(first: Int? = null, second: Int? = null) {
+    private fun setupSpinnerData(first: Int? = null, second: Int? = null) {
         viewModel.currencySymbol.observe(this) {
             spinnerAdapter.addAll(it.map { a -> a.flagSymbol + " " + a.currency })
             spinnerAdapter.notifyDataSetChanged()
-            if (first != null && second != null) {
+            if(first != null && second != null ) {
                 binding.spinnerLayout.firstSpinner.setSelection(first)
                 binding.spinnerLayout.secondSpinner.setSelection(second)
             }
@@ -110,7 +107,7 @@ class MainActivity : AppCompatActivity() {
         val secondValue = binding.secondCurrencyEditText.text.toString()
 
         if (firstValue == "." || secondValue == ".") {
-            Toast.makeText(this, "Wrong Input", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Enter a valid data", Toast.LENGTH_LONG).show()
             binding.conversionProgress.visibility = View.INVISIBLE
         } else if (firstValue.isEmpty() && secondValue.isEmpty()) {
             Toast.makeText(this, "Enter a value", Toast.LENGTH_LONG).show()
@@ -123,7 +120,6 @@ class MainActivity : AppCompatActivity() {
                 getFirstCurrencyPosition(),
                 getSecondCurrencyPosition()
             )
-            target = "secondValue"
         } else if (firstValue.isEmpty() && secondValue.isNotEmpty()) {
             viewModel.convertCurrency(
                 secondValue.toFloat(),
@@ -132,7 +128,6 @@ class MainActivity : AppCompatActivity() {
                 getSecondCurrencyPosition(),
                 getFirstCurrencyPosition()
             )
-            target = "firstValue"
         } else {
             viewModel.convertCurrency(
                 firstValue.toFloat(),
@@ -141,7 +136,6 @@ class MainActivity : AppCompatActivity() {
                 getFirstCurrencyPosition(),
                 getSecondCurrencyPosition()
             )
-            target = "secondValue"
         }
 
     }
@@ -160,19 +154,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.conversion.observe(this) {
             when (it) {
-                is Results.Success -> {
-                    binding.conversionProgress.visibility = View.INVISIBLE
-                    if (target == "firstValue") {
-                        binding.firstCurrencyEditText.text?.clear()
-                        binding.firstCurrencyEditText.clearFocus()
-                        binding.firstCurrencyEditText.setText(it.data.toString())
-                    } else {
-                        binding.secondCurrencyEditText.text?.clear()
-                        binding.secondCurrencyEditText.clearFocus()
-                        binding.secondCurrencyEditText.setText(it.data.toString())
-
-                    }
-                }
+                is Results.Success -> binding.conversionProgress.visibility = View.INVISIBLE
                 is Results.Error -> {
                     binding.conversionProgress.visibility = View.INVISIBLE
                     Toast.makeText(this, it.error.message ?: "Error", Toast.LENGTH_LONG).show()
@@ -186,12 +168,17 @@ class MainActivity : AppCompatActivity() {
         viewModel.conversionResult.observe(this) {
             if (it.isNotEmpty()) {
                 with(binding) {
+                    firstCurrencyEditText.text?.clear()
+                    firstCurrencyEditText.clearFocus()
+                    secondCurrencyEditText.text?.clear()
+                    secondCurrencyEditText.clearFocus()
                     firstCurrencyEditText.setText(it[0].amount.toString())
                     secondCurrencyEditText.setText(it[0].result.toString())
-                    //binding.spinnerLayout.firstSpinner.setSelection(it[0].baseCurrency.toInt(), true)
-                    //binding.spinnerLayout.secondSpinner.setSelection(it[0].targetCurrency.toInt(), true)
                     setupSpinnerData(it[0].baseCurrency.toInt(), it[0].targetCurrency.toInt() )
+                    setupSpinnerData(it[0].baseCurrency.toInt(), it[0].targetCurrency.toInt())
                 }
+            } else {
+                setupSpinnerData()
             }
         }
     }
