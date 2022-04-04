@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
+class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
 
     private val _firstCurrency = MutableLiveData<String>()
     private val _secondCurrency = MutableLiveData<String>()
@@ -42,21 +42,9 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     private fun loadCurrencyData() {
-        val pref = app.applicationContext.getSharedPreferences("LOAD_DATA", Context.MODE_PRIVATE)
-
-        if (!pref.getBoolean("isLoaded", false)) {
-            viewModelScope.launch {
-                databaseDao.insertCurrencySymbol(getCurrencyFlag())
-                databaseDao.getListOfCurrencySymbol().collect {
-                    _currencySymbol.value = it
-                }
-                pref.edit().putBoolean("isLoaded", true).apply()
-            }
-        } else {
-            viewModelScope.launch {
-                databaseDao.getListOfCurrencySymbol().collect {
-                    _currencySymbol.value = it
-                }
+        viewModelScope.launch {
+            databaseDao.getListOfCurrencySymbol().collect {
+                _currencySymbol.value = it
             }
         }
     }
@@ -81,11 +69,11 @@ class ConverterViewModel(val app: Application) : AndroidViewModel(app) {
             if (res.isSuccessful) {
                 val resBody = res.body()
                 _conversion.value =
-                    Results.Success(resBody?.conversion_result!!)
+                    Results.Success(resBody?.result!!)
                 databaseDao.insertConversionResult(
                     ConversionResultEntity(
                         amt, basePosition,
-                        targetPosition, resBody.conversion_result
+                        targetPosition, resBody.result
                     )
                 )
             } else {

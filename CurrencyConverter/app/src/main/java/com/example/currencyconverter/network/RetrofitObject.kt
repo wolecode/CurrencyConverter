@@ -7,8 +7,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitObject {
-
-    private const val baseUrl = "https://v6.exchangerate-api.com/v6/"
+    //https://v6.exchangerate-api.com/v6/
+    private const val baseUrl = "https://api.exchangerate.host/"
     private val interceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
 
     private val clientHttp = OkHttpClient.Builder()

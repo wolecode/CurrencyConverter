@@ -1,19 +1,14 @@
 package com.example.currencyconverter.ui
 
-import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.preference.PreferenceManager.getDefaultSharedPreferences
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.currencyconverter.databinding.ActivityMainBinding
-import com.example.currencyconverter.getCurrencyFlag
 import com.example.currencyconverter.network.Results
-import java.lang.Error
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
@@ -25,7 +20,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         viewModel = ViewModelProvider(
             this,
             ViewModelProvider.AndroidViewModelFactory(application)
@@ -34,20 +28,19 @@ class MainActivity : AppCompatActivity() {
             setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
         }
 
-        //setupSpinnerData()
         setUpView()
         observePersistedData()
         setCurrencySymbol()
 
     }
 
-    private fun setupSpinnerData(first: Int? = null, second: Int? = null) {
+    private fun setupSpinnerData(baseCurrencyPosition: Int? = null, targetCurrencyPosotion: Int? = null) {
         viewModel.currencySymbol.observe(this) {
             spinnerAdapter.addAll(it.map { a -> a.flagSymbol + " " + a.currency })
             spinnerAdapter.notifyDataSetChanged()
-            if(first != null && second != null ) {
-                binding.spinnerLayout.firstSpinner.setSelection(first)
-                binding.spinnerLayout.secondSpinner.setSelection(second)
+            if(baseCurrencyPosition != null && targetCurrencyPosotion != null ) {
+                binding.spinnerLayout.firstSpinner.setSelection(baseCurrencyPosition)
+                binding.spinnerLayout.secondSpinner.setSelection(targetCurrencyPosotion)
             }
         }
     }
@@ -60,6 +53,7 @@ class MainActivity : AppCompatActivity() {
             spinnerLayout.firstSpinner.apply {
                 adapter = spinnerAdapter
                 onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+
                     override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                         val item = p0?.getItemAtPosition(p2) as String
                         viewModel.updateFirstCurrency(item.substring(item.length - 3))
@@ -73,12 +67,8 @@ class MainActivity : AppCompatActivity() {
             spinnerLayout.secondSpinner.apply {
                 adapter = spinnerAdapter
                 onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                    override fun onItemSelected(
-                        p0: AdapterView<*>?,
-                        p1: View?,
-                        p2: Int,
-                        p3: Long
-                    ) {
+
+                    override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
                         val item = p0?.getItemAtPosition(p2) as String
                         viewModel.updateSecondCurrency(item.substring(item.length - 3))
                     }
@@ -175,7 +165,6 @@ class MainActivity : AppCompatActivity() {
                     firstCurrencyEditText.setText(it[0].amount.toString())
                     secondCurrencyEditText.setText(it[0].result.toString())
                     setupSpinnerData(it[0].baseCurrency.toInt(), it[0].targetCurrency.toInt() )
-                    setupSpinnerData(it[0].baseCurrency.toInt(), it[0].targetCurrency.toInt())
                 }
             } else {
                 setupSpinnerData()
