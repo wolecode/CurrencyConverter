@@ -11,5 +11,6 @@ interface ApiService {
     @GET("convert")
     suspend fun getConversion(@Query("from")firstCurrency:String,
                               @Query("to")secondCurrency: String,
-                              @Query("amount")amt: Float):Response<ConverterResponse>
+                              @Query("amount")amt: Float,
+                              @Query("round")round: Int = 2):Response<ConverterResponse>
 }
