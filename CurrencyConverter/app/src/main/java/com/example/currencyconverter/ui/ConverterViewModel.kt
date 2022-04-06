@@ -105,23 +105,45 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
             viewModelScope.launch {
 
                     async {
-                        repeat(15) {
-                            val newDate = date.minusDays(it.toLong()).toString()
+                        for( i in 0..16) {
+                            val newDate = date.minusDays(i.toLong()).toString()
                             val response = service.getHistoricalData(newDate, baseCurrency, targetCurrency)
                             if (response.isSuccessful) {
                                 val body = response.body()
                                 if (body != null) {
                                     databaseDao.insertHistoricalData(
                                         HistoricalDataEntity(newDate,
-                                            body.rates.)
+                                            body.rates.values.toList()[0], baseCurrency, targetCurrency)
                                     )
                                 }
                             }
                         }
                     }
-                    async {  }
+                    async {
+                        for(i in 16..30) {
+                            val newDate = date.minusDays(i.toLong()).toString()
+                            val response = service.getHistoricalData(newDate, baseCurrency, targetCurrency)
+                            if (response.isSuccessful) {
+                                val body = response.body()
+                                if (body != null) {
+                                    databaseDao.insertHistoricalData(
+                                        HistoricalDataEntity(newDate,
+                                            body.rates.values.toList()[0], baseCurrency, targetCurrency)
+                                    )
+                                }
+                            }
+                        }
+                    }
 
             }
+        } else {
+            val date = LocalDate.now()
+            viewModelScope.launch {
+                val response = service.getHistoricalData(date.toString(), baseCurrency, targetCurrency)
+                Log.i("RATE","${response.body()?.rates?.values?.toList()?.get(0)}")
+
+            }
+
         }
 
     }
