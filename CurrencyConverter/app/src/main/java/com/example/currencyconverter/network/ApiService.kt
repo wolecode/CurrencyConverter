@@ -1,6 +1,7 @@
 package com.example.currencyconverter.network
 
 import com.example.currencyconverter.data.ConverterResponse
+import com.example.currencyconverter.data.HistoricalRateResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -13,10 +14,11 @@ interface ApiService {
     suspend fun getConversion(@Query("from")firstCurrency:String,
                               @Query("to")secondCurrency: String,
                               @Query("amount")amt: Float,
-                              @Query("round")round: Int = 2):Response<ConverterResponse>
+                              @Query("places")round: Int = 2):Response<ConverterResponse>
     @GET("{date}")
     suspend fun getHistoricalData(@Path("date") date: String,
                                   @Query("base") base: String,
                                   @Query("symbols") symbols: String,
-                                  @Query("amount") amount: Int = 1)
+                                  @Query("amount") amount: Int = 1,
+                                  @Query("places") round: Int = 2): Response<HistoricalRateResponse>
 }

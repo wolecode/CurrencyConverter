@@ -9,14 +9,14 @@ import androidx.lifecycle.*
 import com.example.currencyconverter.data.CurrencyDatabase
 import com.example.currencyconverter.data.entity.ConversionResultEntity
 import com.example.currencyconverter.data.entity.CurrencyFlagEntity
+import com.example.currencyconverter.data.entity.HistoricalDataEntity
 import com.example.currencyconverter.getCurrencyFlag
 import com.example.currencyconverter.network.Results
 import com.example.currencyconverter.network.RetrofitObject
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.time.LocalDate
 
 class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
 
@@ -33,14 +33,22 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
     var currencySymbol: LiveData<List<CurrencyFlagEntity>> = _currencySymbol
     var conversionResult: LiveData<List<ConversionResultEntity>> = _conversionResult
 
+    var historicalSample: HistoricalDataEntity? = null
+    private val service = RetrofitObject.getService()
+
     private val databaseDao = CurrencyDatabase.getDatabase(app).getCurrencyDao()
 
     init {
         loadCurrencyData()
         getConversionResult()
+        getHistoricalDataSample()
+    }
+    private fun getHistoricalDataSample() {
+        viewModelScope.launch {
+            historicalSample = databaseDao.getHistoricalDataSample()
+        }
 
     }
-
     private fun loadCurrencyData() {
         viewModelScope.launch {
             databaseDao.getListOfCurrencySymbol().collect {
@@ -63,7 +71,6 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
     ) {
         viewModelScope.launch {
 
-            val service = RetrofitObject.getService()
             val res = service.getConversion(base, target, amt)
 
             if (res.isSuccessful) {
@@ -76,6 +83,7 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
                         targetPosition, resBody.result
                     )
                 )
+                insertHistoricalDataLocally(base, target)
             } else {
                 Results.Error(Exception(res.errorBody().toString()))
             }
@@ -86,6 +94,33 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
         viewModelScope.launch {
             databaseDao.getConversionResult().collect {
                 _conversionResult.value = it
+            }
+        }
+
+    }
+
+    private fun insertHistoricalDataLocally(baseCurrency: String, targetCurrency: String) {
+        if (historicalSample == null) {
+            val date = LocalDate.now()
+            viewModelScope.launch {
+
+                    async {
+                        repeat(15) {
+                            val newDate = date.minusDays(it.toLong()).toString()
+                            val response = service.getHistoricalData(newDate, baseCurrency, targetCurrency)
+                            if (response.isSuccessful) {
+                                val body = response.body()
+                                if (body != null) {
+                                    databaseDao.insertHistoricalData(
+                                        HistoricalDataEntity(newDate,
+                                            body.rates.)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    async {  }
+
             }
         }
 

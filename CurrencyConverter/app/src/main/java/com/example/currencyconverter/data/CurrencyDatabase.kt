@@ -7,13 +7,15 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.currencyconverter.data.entity.ConversionResultEntity
 import com.example.currencyconverter.data.entity.CurrencyFlagEntity
+import com.example.currencyconverter.data.entity.HistoricalDataEntity
 import com.example.currencyconverter.getCurrencyFlag
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-@Database(entities = [ConversionResultEntity::class, CurrencyFlagEntity::class], version = 1)
+@Database(entities = [ConversionResultEntity::class, CurrencyFlagEntity::class,
+    HistoricalDataEntity::class], version = 2)
 abstract class CurrencyDatabase: RoomDatabase() {
     abstract fun getCurrencyDao(): CurrencyDao
 

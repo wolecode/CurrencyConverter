@@ -2,12 +2,11 @@ package com.example.currencyconverter.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
+import androidx.room.*
 import androidx.room.Query
 import com.example.currencyconverter.data.entity.ConversionResultEntity
 import com.example.currencyconverter.data.entity.CurrencyFlagEntity
+import com.example.currencyconverter.data.entity.HistoricalDataEntity
 import kotlinx.coroutines.flow.Flow
 
 
@@ -28,5 +27,15 @@ interface CurrencyDao {
 
     @Query("SELECT * FROM conversionResult")
     fun getConversionResult(): Flow<List<ConversionResultEntity>>
+
+    @Query("SELECT * FROM historicalData LIMIT 1")
+    suspend  fun getHistoricalDataSample(): HistoricalDataEntity?
+
+    @Insert(entity = HistoricalDataEntity::class, onConflict = OnConflictStrategy.REPLACE)
+    @Transaction
+    suspend fun insertHistoricalData(data: HistoricalDataEntity)
+
+    @Query("DELETE FROM historicalData")
+    suspend fun deleteHistoricalData()
 
 }
