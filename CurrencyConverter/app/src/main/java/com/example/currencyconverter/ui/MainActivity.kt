@@ -34,13 +34,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun setupSpinnerData(baseCurrencyPosition: Int? = null, targetCurrencyPosotion: Int? = null) {
+    private fun setupSpinnerData(baseCurrencyPosition: Int? = null, targetCurrencyPosition: Int? = null) {
         viewModel.currencySymbol.observe(this) {
             spinnerAdapter.addAll(it.map { a -> a.flagSymbol + " " + a.currency })
             spinnerAdapter.notifyDataSetChanged()
-            if(baseCurrencyPosition != null && targetCurrencyPosotion != null ) {
+            if(baseCurrencyPosition != null && targetCurrencyPosition != null ) {
                 binding.spinnerLayout.firstSpinner.setSelection(baseCurrencyPosition)
-                binding.spinnerLayout.secondSpinner.setSelection(targetCurrencyPosotion)
+                binding.spinnerLayout.secondSpinner.setSelection(targetCurrencyPosition)
             }
         }
     }

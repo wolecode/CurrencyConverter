@@ -28,8 +28,8 @@ interface CurrencyDao {
     @Query("SELECT * FROM conversionResult")
     fun getConversionResult(): Flow<List<ConversionResultEntity>>
 
-    @Query("SELECT * FROM historicalData LIMIT 1")
-    suspend  fun getHistoricalDataSample(): HistoricalDataEntity?
+    @Query("SELECT * FROM historicalData ORDER BY  date DESC LIMIT 1")
+    fun getHistoricalDataSample(): Flow<HistoricalDataEntity?>
 
     @Insert(entity = HistoricalDataEntity::class, onConflict = OnConflictStrategy.REPLACE)
     @Transaction
