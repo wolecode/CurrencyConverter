@@ -43,6 +43,7 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
         getConversionResult()
         getHistoricalDataSample()
     }
+
     private fun getHistoricalDataSample() {
         viewModelScope.launch {
             databaseDao.getHistoricalDataSample().collect {
@@ -51,6 +52,7 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
         }
 
     }
+
     private fun loadCurrencyData() {
         viewModelScope.launch {
             databaseDao.getListOfCurrencySymbol().collect {
