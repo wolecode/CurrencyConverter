@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.icu.util.Currency
 import android.util.Log
 import androidx.lifecycle.*
+import androidx.work.WorkManager
 import com.example.currencyconverter.data.CurrencyDatabase
 import com.example.currencyconverter.data.entity.ConversionResultEntity
 import com.example.currencyconverter.data.entity.CurrencyFlagEntity
@@ -37,6 +38,7 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
     private val service = RetrofitObject.getService()
 
     private val databaseDao = CurrencyDatabase.getDatabase(app).getCurrencyDao()
+    private val workManger = WorkManager.getInstance(app)
 
     init {
         loadCurrencyData()
