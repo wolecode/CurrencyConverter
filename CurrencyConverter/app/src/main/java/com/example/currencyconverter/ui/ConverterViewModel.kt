@@ -6,7 +6,7 @@ import android.content.SharedPreferences
 import android.icu.util.Currency
 import android.util.Log
 import androidx.lifecycle.*
-import androidx.work.WorkManager
+import androidx.work.*
 import com.example.currencyconverter.data.CurrencyDatabase
 import com.example.currencyconverter.data.entity.ConversionResultEntity
 import com.example.currencyconverter.data.entity.CurrencyFlagEntity
@@ -123,7 +123,20 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
     }
 
     private fun insertHistoricalDataLocally(baseCurrency: String, targetCurrency: String) {
-        val date = LocalDate.now()
+        val workConstraint = Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .build()
+        val inputData = Data.Builder()
+                       .putString("BASE_CURRENCY", baseCurrency)
+                       .putString("TARGET_CURRENCY", targetCurrency)
+                       .build()
+        val workRequest = OneTimeWorkRequestBuilder<ConverterWorkManager>().let{
+                          it.setConstraints(workConstraint)
+                          it.setInputData(inputData)
+                          it.build()
+        }
+        workManger.enqueue(workRequest)
+       /* val date = LocalDate.now()
         viewModelScope.launch {
             for (i in 0..29) {
                 val newDate = date.minusDays(i.toLong()).toString()
@@ -140,6 +153,6 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
                     }
                 }
             }
-        }
+        }*/
     }
 }
