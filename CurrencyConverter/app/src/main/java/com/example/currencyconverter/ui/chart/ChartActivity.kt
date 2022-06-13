@@ -20,7 +20,7 @@ class ChartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChartBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        
         val entryList = mutableListOf<Entry>(Entry(0f, 10.1f), Entry(1f, 10.5f),
             Entry(2f, 11f), Entry(3f, 10.8f), Entry(4f, 9.2f),
             Entry(5f, 10.6f), Entry(6f, 9.0f))

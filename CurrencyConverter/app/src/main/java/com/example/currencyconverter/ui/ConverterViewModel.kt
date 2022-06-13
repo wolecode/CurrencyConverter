@@ -18,6 +18,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import java.time.LocalDate
+import java.time.LocalTime
 
 class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
 
@@ -38,7 +39,7 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
     private val service = RetrofitObject.getService()
 
     private val databaseDao = CurrencyDatabase.getDatabase(app).getCurrencyDao()
-    private val workManger = WorkManager.getInstance(app)
+    private val workManager = WorkManager.getInstance(app)
 
     init {
         loadCurrencyData()
@@ -82,7 +83,7 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
             if (res.isSuccessful) {
                 val resBody = res.body()
                 _conversion.value =
-                    Results.Success(resBody?.result!!)
+                    Results.Success(resBody?.result!!) //State of the conversion process(Successful)
                 databaseDao.insertConversionResult(
                     ConversionResultEntity(
                         amt, basePosition,
@@ -92,6 +93,7 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
                 // Fetch and save historical data for the last thirty(30) days
                 updateHistoricalDataLocally(base, target)
             } else {
+                //State of the conversion process(Failure)
                 Results.Error(Exception(res.errorBody().toString()))
             }
         }
@@ -135,24 +137,36 @@ class ConverterViewModel(private val app: Application) : AndroidViewModel(app) {
                           it.setInputData(inputData)
                           it.build()
         }
-        workManger.enqueue(workRequest)
-       /* val date = LocalDate.now()
-        viewModelScope.launch {
-            for (i in 0..29) {
-                val newDate = date.minusDays(i.toLong()).toString()
-                val response = service.getHistoricalData(newDate, baseCurrency, targetCurrency)
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body != null) {
-                        databaseDao.insertHistoricalData(
-                            HistoricalDataEntity(
-                                newDate,
-                                body.rates.values.toList()[0], baseCurrency, targetCurrency
-                            )
-                        )
-                    }
-                }
-            }
-        }*/
+        workManager.enqueue(workRequest)
+        val workInfo = workManager.getWorkInfoByIdLiveData(workRequest.id)
+
+        workInfo.observeForever {
+            when(it.state) {
+                WorkInfo.State.BLOCKED -> {Log.i("WORK_BLOCKED", "BLOCKED")}
+                WorkInfo.State.CANCELLED -> {Log.i("WORK_BLOCKED", "CANCELLED")}
+                WorkInfo.State.ENQUEUED -> {Log.i("WORK_BLOCKED", "ENQUEUED")}
+                WorkInfo.State.FAILED -> {Log.i("WORK_BLOCKED", "FAILED")}
+                WorkInfo.State.RUNNING -> {Log.i("WORK_BLOCKED", "RUNNING")}
+                WorkInfo.State.SUCCEEDED -> {Log.i("WORK_BLOCKED", "SUCCEEDED")}
+        } }
+
+        /* val date = LocalDate.now()
+         viewModelScope.launch {
+             for (i in 0..29) {
+                 val newDate = date.minusDays(i.toLong()).toString()
+                 val response = service.getHistoricalData(newDate, baseCurrency, targetCurrency)
+                 if (response.isSuccessful) {
+                     val body = response.body()
+                     if (body != null) {
+                         databaseDao.insertHistoricalData(
+                             HistoricalDataEntity(
+                                 newDate,
+                                 body.rates.values.toList()[0], baseCurrency, targetCurrency
+                             )
+                         )
+                     }
+                 }
+             }
+         }*/
     }
 }

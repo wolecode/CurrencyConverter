@@ -2,6 +2,7 @@ package com.example.currencyconverter.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -164,6 +165,7 @@ class MainActivity : AppCompatActivity() {
                     secondCurrencyEditText.clearFocus()
                     firstCurrencyEditText.setText(it[0].amount.toString())
                     secondCurrencyEditText.setText(it[0].result.toString())
+                    //Setting up the spinner position of he currencies
                     setupSpinnerData(it[0].baseCurrency.toInt(), it[0].targetCurrency.toInt() )
                 }
             } else {
